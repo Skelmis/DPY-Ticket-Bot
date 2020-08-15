@@ -28,6 +28,23 @@ I love new code for this project, I love seeing it grow. However, there is a pro
 ---
 
 ## Use a Consistent Coding Style
-- `return` statements are prefered within conditionals when checking whether to continue with processing or not
 - Tabs should be 4 spaces for indentation
 - Where code gets excessive, functional programming ideas should come into play for readability
+- `return` statements are prefered within conditionals when checking whether to continue with processing or not
+For example:
+```python
+if not condtion:
+    # This means we should not process the rest of the command
+    await ctx.send("You are missing perms, an argument, etc")
+    return
+
+# We should process the rest of the command here
+```
+Is preferred over:
+```python
+if not condtion:
+    # This means we should not process the rest of the command
+    await ctx.send("You are missing perms, an argument, etc")
+else:
+    # We should process the rest of the command
+```
