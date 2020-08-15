@@ -29,6 +29,7 @@ I love new code for this project, I love seeing it grow. However, there is a pro
 
 ## Use a Consistent Coding Style
 - Tabs should be 4 spaces for indentation
+- Where applicable, code should be documented in accordance with [#3](https://github.com/Skelmis/DPY-Ticket-Bot/issues/3)
 - Where code gets excessive, functional programming ideas should come into play for readability
 - `return` statements are prefered within conditionals when checking whether to continue with processing or not
 For example:
