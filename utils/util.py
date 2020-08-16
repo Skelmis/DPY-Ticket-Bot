@@ -89,7 +89,7 @@ def LogNewTicketChannel(channelId, ticketId):
     write_json(data, "config")
 
 
-def CheckIfTicket(channelId):
+def IsATicket(channelId):
     data = read_json("config")
     return str(channelId) in data
 
@@ -239,7 +239,7 @@ async def SudoCreateNewTicket(bot, guild, author, message):
 
 
 async def CloseTicket(bot, ctx, reason=None):
-    if not CheckIfTicket(ctx.channel.id):
+    if not IsATicket(ctx.channel.id):
         await ctx.send("I cannot close this as it is not a ticket.")
         await ctx.message.delete()
         return
@@ -270,7 +270,7 @@ async def CloseTicket(bot, ctx, reason=None):
 
 
 async def ReactionCloseTicket(bot, channel, author):
-    if not CheckIfTicket(channel.id):
+    if not IsATicket(channel.id):
         await channel.send("I cannot close this as it is not a ticket.")
         return
 

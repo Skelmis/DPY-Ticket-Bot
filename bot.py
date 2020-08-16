@@ -5,8 +5,7 @@ from utils.util import (
     CreateNewTicket,
     SudoCreateNewTicket,
     CloseTicket,
-    GetTicketSetupMessageId,
-    CheckIfTicket,
+    IsATicket,
     ReactionCreateNewTicket,
     SetupNewTicketMessage,
     CheckIfValidReactionMessage,
@@ -66,7 +65,7 @@ async def on_raw_reaction_add(payload):
         return
 
     # Check its a valid reaction channel
-    if not payload.channel_id == bot.new_ticket_channel_id and not CheckIfTicket(
+    if not payload.channel_id == bot.new_ticket_channel_id and not IsATicket(
         str(payload.channel_id)
     ):
         return
@@ -119,7 +118,7 @@ async def on_raw_reaction_remove(payload):
         return
 
     # Check its a valid reaction channel
-    if not payload.channel_id == bot.new_ticket_channel_id and not CheckIfTicket(
+    if not payload.channel_id == bot.new_ticket_channel_id and not IsATicket(
         str(payload.channel_id)
     ):
         return
