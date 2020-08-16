@@ -1,5 +1,3 @@
-import traceback
-
 import discord
 from discord.ext import commands
 
@@ -14,7 +12,7 @@ from utils.util import (
     CheckIfValidReactionMessage,
     ReactionCloseTicket,
 )
-from utils.json import read_json
+from utils.jsonLoader import read_json
 
 bot = commands.Bot(
     command_prefix="..", case_insensitive=True, owner_id=271612318947868673

@@ -1,7 +1,7 @@
 import random
 import discord
 
-from utils.json import read_json, write_json
+from utils.jsonLoader import read_json, write_json
 
 
 def GetTicketCount():
