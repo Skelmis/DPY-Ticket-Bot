@@ -1,4 +1,3 @@
-import random
 import discord
 
 from utils.jsonLoader import read_json, write_json
