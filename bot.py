@@ -122,7 +122,35 @@ async def new(ctx, *, subject=None):
 async def close(ctx, *, reason=None):
     await CloseTicket(bot, ctx, reason)
 
+@bot.command()
+@commands.has_role(bot.staff_role_id)
+async def adduser(ctx, user: discord.Member):
+    """
+    add users to a ticket - only staff role can add users.
+    """
+    channel = ctx.channel
+    if not IsATicket(channel.id):
+        await ctx.send("This is not a ticket! Users can only be added to a ticket channel")
+        return
 
+    await channel.set_permissions(user, read_messages=True, send_messages=True)
+    await ctx.message.delete()
+
+
+@bot.command()
+@commands.has_role(bot.staff_role_id)
+async def removeuser(ctx, user: discord.Member):
+    """
+    removes users from a ticket - only staff role can remove users.
+    """
+    channel = ctx.channel
+    if not IsATicket(channel.id):
+        await ctx.send("This is not a ticket! Users can only be removed from a ticket channel")
+        return
+        
+    await channel.set_permissions(user, read_messages=False, send_messages=False)
+    await ctx.message.delete()
+        
 @bot.command()
 @commands.is_owner()
 async def sudonew(ctx, user: discord.Member):
