@@ -127,7 +127,7 @@ async def close(ctx, *, reason=None):
 @commands.has_role(bot.staff_role_id)
 async def adduser(ctx, user: discord.Member):
     channel = ctx.channel
-    if not CheckIfTicket(channel.id):
+    if not IsATicket(channel.id):
         await ctx.send("This is not a ticket! Users can only be added to a ticket channel")
         return
 
@@ -139,11 +139,12 @@ async def adduser(ctx, user: discord.Member):
 @commands.has_role(bot.staff_role_id)
 async def removeuser(ctx, user: discord.Member):
     channel = ctx.channel
-    if not CheckIfTicket(channel.id):
+    if not IsATicket(channel.id):
         await ctx.send("This is not a ticket! Users can only be removed from a ticket channel")
-    else:
-        await channel.set_permissions(user, read_messages=False, send_messages=False)
-        await ctx.message.delete()
+        return
+        
+    await channel.set_permissions(user, read_messages=False, send_messages=False)
+    await ctx.message.delete()
         
 @bot.command()
 @commands.is_owner()
