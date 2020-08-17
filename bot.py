@@ -156,9 +156,10 @@ async def adduser(ctx, user: discord.Member):
     channel = ctx.channel
     if not CheckIfTicket(channel.id):
         await ctx.send("This is not a ticket! Users can only be added to a ticket channel")
-    else:
-        await channel.set_permissions(user, read_messages=True, send_messages=True)
-        await ctx.message.delete()
+        return
+
+    await channel.set_permissions(user, read_messages=True, send_messages=True)
+    await ctx.message.delete()
 
 #remove users to a ticket - only staff role can remove users
 @bot.command()
