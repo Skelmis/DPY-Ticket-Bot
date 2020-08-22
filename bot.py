@@ -4,13 +4,11 @@ from discord.ext import commands
 from utils.jsonLoader import read_json
 from utils.util import (
     CreateNewTicket,
-    SudoCreateNewTicket,
     CloseTicket,
     IsATicket,
     ReactionCreateNewTicket,
     SetupNewTicketMessage,
     CheckIfValidReactionMessage,
-    ReactionCloseTicket,
 )
 
 bot = commands.Bot(
@@ -22,6 +20,7 @@ bot.new_ticket_channel_id = None
 bot.log_channel_id = None
 bot.category_id = None
 bot.staff_role_id = None
+
 
 @bot.event
 async def on_ready():
@@ -56,15 +55,15 @@ async def on_raw_reaction_add(payload):
     if payload.message_id == data["ticketSetupMessageId"] and reaction == "✅":
         # We want a new ticket...
         await ReactionCreateNewTicket(bot, payload)
-        
-        # once the ticket is created remove the user reaction
+
+        # once the ticket is created remove the users reaction
         guild = bot.get_guild(payload.guild_id)
         member = await guild.fetch_member(payload.user_id)
-        
+
         channel = bot.get_channel(payload.channel_id)
         message = await channel.fetch_message(payload.message_id)
         await message.remove_reaction("✅", member)
-        
+
         return
 
     elif reaction == "🔒":
@@ -79,7 +78,7 @@ async def on_raw_reaction_add(payload):
         member = await guild.fetch_member(payload.user_id)
 
         channel = bot.get_channel(payload.channel_id)
-        await ReactionCloseTicket(bot, channel, member)
+        await CloseTicket(bot, channel, member)
 
 
 @bot.event
@@ -115,12 +114,13 @@ async def on_raw_reaction_remove(payload):
 
 @bot.command()
 async def new(ctx, *, subject=None):
-    await CreateNewTicket(bot, ctx, subject)
+    await CreateNewTicket(bot, ctx.guild, ctx.message.author, subject=subject)
 
 
 @bot.command()
 async def close(ctx, *, reason=None):
-    await CloseTicket(bot, ctx, reason)
+    await CloseTicket(bot, ctx.channel, ctx.author, reason)
+
 
 @bot.command()
 @commands.has_role(bot.staff_role_id)
@@ -130,7 +130,9 @@ async def adduser(ctx, user: discord.Member):
     """
     channel = ctx.channel
     if not IsATicket(channel.id):
-        await ctx.send("This is not a ticket! Users can only be added to a ticket channel")
+        await ctx.send(
+            "This is not a ticket! Users can only be added to a ticket channel"
+        )
         return
 
     await channel.set_permissions(user, read_messages=True, send_messages=True)
@@ -145,17 +147,21 @@ async def removeuser(ctx, user: discord.Member):
     """
     channel = ctx.channel
     if not IsATicket(channel.id):
-        await ctx.send("This is not a ticket! Users can only be removed from a ticket channel")
+        await ctx.send(
+            "This is not a ticket! Users can only be removed from a ticket channel"
+        )
         return
-        
+
     await channel.set_permissions(user, read_messages=False, send_messages=False)
     await ctx.message.delete()
-        
+
+
 @bot.command()
 @commands.is_owner()
 async def sudonew(ctx, user: discord.Member):
-    await ctx.message.delete()
-    await SudoCreateNewTicket(bot, ctx.guild, user, ctx.message)
+    await CreateNewTicket(
+        bot, ctx.guild, user, subject="Sudo Ticket Creation", message=ctx.message
+    )
 
 
 @bot.command()
