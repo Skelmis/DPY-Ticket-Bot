@@ -51,7 +51,7 @@ else:
 ```
 
 ### Function Documentation
-- All new functions should be documented in accordance with (these)[https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard] conventions
+- All new functions should be documented in accordance with [these](https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard) conventions
 
 ### Command Documentation
 ##### Required
