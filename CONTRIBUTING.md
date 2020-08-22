@@ -29,7 +29,7 @@ I love new code for this project, I love seeing it grow. However, there is a pro
 
 ## Use a Consistent Coding Style
 - Tabs should be 4 spaces for indentation
-- Where applicable, code should be documented in accordance with [#3](https://github.com/Skelmis/DPY-Ticket-Bot/issues/3)
+- Where applicable, code should be documented. For implementation see the below Documentaion sections
 - Where code gets excessive, functional programming ideas should come into play for readability
 - `return` statements are prefered within conditionals when checking whether to continue with processing or not
 For example:
@@ -48,4 +48,33 @@ if not condtion:
     await ctx.send("You are missing perms, an argument, etc")
 else:
     # We should process the rest of the command
+```
+
+### Function Documentation
+- All new functions should be documented in accordance with (these)[https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard] conventions
+
+### Command Documentation
+##### Required
+- `name` -> attribute with the name of the command
+- `description` -> A short description of what this command does, do not cover how it is implemented.
+##### Optional
+- `aliases` -> For use if the command has aliases
+- `usage` -> If the command takes arguments, this is **Required**. Format should include required arguments surrounded by `<>` and optional arguments surrounded by `[]`
+
+Example:
+```python
+@bot.command(
+    name="echo",
+    description="Repeat some text back using the bot.",
+    usage="<channel> <message>",
+)
+@commands.guild_only()
+@commands.is_owner()
+async def echo(ctx, channel: discord.TextChannel, *, content):
+    await ctx.message.delete()
+    embed = discord.Embed(
+        description=content, color=0x808080, timestamp=ctx.message.created_at
+    )
+    embed.set_author(name=ctx.guild.me.display_name, icon_url=ctx.guild.me.avatar_url)
+    await channel.send(embed=embed)
 ```
