@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from utils.jsonLoader import read_json
+from utils.json_loader import read_json
 from utils.util import (
     CreateNewTicket,
     CloseTicket,
@@ -12,7 +12,10 @@ from utils.util import (
 )
 
 bot = commands.Bot(
-    command_prefix="..", case_insensitive=True, owner_id=271612318947868673
+    command_prefix="-",
+    case_insensitive=True,
+    intents=discord.Intents.all(),
+    activity=discord.Game(name=".new for a ticket"),
 )
 secret_file = read_json("secrets")
 
@@ -25,7 +28,6 @@ bot.staff_role_id = None
 @bot.event
 async def on_ready():
     print("Lesh go!")
-    await bot.change_presence(activity=discord.Game(name=".new for a ticket"))
 
 
 @bot.event
@@ -112,17 +114,20 @@ async def on_raw_reaction_remove(payload):
         await message.remove_reaction("✅", member)
 
 
-@bot.command()
+@bot.command(name="new", description="Create a new ticket.", usage="[subject]")
+@commands.guild_only()
 async def new(ctx, *, subject=None):
     await CreateNewTicket(bot, ctx.guild, ctx.message.author, subject=subject)
 
 
-@bot.command()
+@bot.command(name="close", description="Close this ticket.", usage="[reason]")
+@commands.guild_only()
 async def close(ctx, *, reason=None):
     await CloseTicket(bot, ctx.channel, ctx.author, reason)
 
 
-@bot.command()
+@bot.command(name="adduser", description="Add a user to this ticket", usage="<user>")
+@commands.guild_only()
 @commands.has_role(bot.staff_role_id)
 async def adduser(ctx, user: discord.Member):
     """
@@ -139,7 +144,10 @@ async def adduser(ctx, user: discord.Member):
     await ctx.message.delete()
 
 
-@bot.command()
+@bot.command(
+    name="removeuser", description="Removes a user from this ticket.", usage="<user>"
+)
+@commands.guild_only()
 @commands.has_role(bot.staff_role_id)
 async def removeuser(ctx, user: discord.Member):
     """
@@ -156,7 +164,10 @@ async def removeuser(ctx, user: discord.Member):
     await ctx.message.delete()
 
 
-@bot.command()
+@bot.command(
+    name="sudonew", description="Create a ticket on behalf of a user", usage="<user>"
+)
+@commands.guild_only()
 @commands.is_owner()
 async def sudonew(ctx, user: discord.Member):
     await CreateNewTicket(
@@ -164,13 +175,19 @@ async def sudonew(ctx, user: discord.Member):
     )
 
 
-@bot.command()
+@bot.command(name="setup", description="Initial setup of the bot.")
+@commands.guild_only()
 @commands.is_owner()
 async def setup(ctx):
     await SetupNewTicketMessage(bot)
 
 
-@bot.command()
+@bot.command(
+    name="echo",
+    description="Repeat some text back using the bot.",
+    usage="<channel> <message>",
+)
+@commands.guild_only()
 @commands.is_owner()
 async def echo(ctx, channel: discord.TextChannel, *, content):
     await ctx.message.delete()
