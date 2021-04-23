@@ -18,6 +18,8 @@ class Ticket:
     with events that don't have an attached context.
     """
 
+    __slots__ = ("ctx", "db")
+
     def __init__(self, ctx, db: Base):
         self.ctx = ctx
         self.db = db

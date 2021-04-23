@@ -27,7 +27,7 @@ class Bot(commands.Bot):
         # The staff role to add to tickets
         self.staff_role_id = 503037272313036802
         # The data storage medium to use (MUST implement utils.db.base.Base)
-        self.ticket_db = JsonStore()
+        self.ticket_db = JsonStore(storage_path="/bot_config/")
 
     async def get_context(self, message, *, cls=MyContext):
         return await super().get_context(message, cls=cls)

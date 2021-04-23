@@ -12,7 +12,7 @@ class JsonStore:
     def __init__(self, storage_path="/"):
         self.cwd = str(Path(__file__).parents[2])
 
-        if not storage_path.startswith("/") and not storage_path.endswith("/"):
+        if not storage_path.startswith("/") or not storage_path.endswith("/"):
             raise RuntimeError(
                 "Expected a valid storage path string (Start and end with /)"
             )
