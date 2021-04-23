@@ -2,8 +2,8 @@ from typing import Iterable
 
 import discord
 
-from utils import ReactionContext, Message
 from utils.db import Base
+from .reaction_context import ReactionContext, Message
 
 
 # noinspection DuplicatedCode
@@ -33,7 +33,7 @@ class Ticket:
         messages = await channel.history(limit=None, oldest_first=True).flatten()
         ticket_content = " ".join(
             [
-                f"{message.created_at.strftime('%d/%m/%Y')} {message.author.name:<15} | {message.content}\n"
+                f"{message.created_at.strftime('%d/%m/%Y')} {message.author.name:<15} -> {message.content}\n"
                 for message in messages
             ]
         )
@@ -101,7 +101,7 @@ class Ticket:
         await self.__send_log(
             f"Created ticket with ID {new_ticket_id}",
             f"Ticket Creator: {author.mention}(`{author.id}`)\nChannel: "
-            "{channel.mention}({channel.name})\nSubject: {subject}",
+            f"{channel.mention}({channel.name})\nSubject: {subject}",
             0xB4DA55,
         )
 
@@ -165,7 +165,11 @@ class Ticket:
         channel = bot.get_channel(payload.channel_id)
         member = payload.member or guild.get_member(payload.user_id)
         ctx = ReactionContext(
-            guild=guild, bot=bot, message=Message(author=member), channel=channel
+            guild=guild,
+            bot=bot,
+            message=Message(author=member),
+            channel=channel,
+            author=member,
         )
 
         await Ticket(ctx, bot.ticket_db).create_ticket()
@@ -180,7 +184,11 @@ class Ticket:
         channel = bot.get_channel(payload.channel_id)
         member = payload.member or guild.get_member(payload.user_id)
         ctx = ReactionContext(
-            guild=guild, bot=bot, message=Message(author=member), channel=channel
+            guild=guild,
+            bot=bot,
+            message=Message(author=member),
+            channel=channel,
+            author=member,
         )
 
         await Ticket(ctx, bot.ticket_db).close_ticket(reaction_event=True)

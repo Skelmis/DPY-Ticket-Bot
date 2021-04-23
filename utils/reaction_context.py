@@ -22,3 +22,4 @@ class ReactionContext:
     bot: commands.Bot
     message: Message
     channel: discord.TextChannel
+    author: discord.Member

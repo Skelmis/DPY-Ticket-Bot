@@ -10,7 +10,7 @@ class JsonStore:
     __slots__ = ("cwd", "storage_path")
 
     def __init__(self, storage_path="/"):
-        self.cwd = str(Path(__file__).parents[0])
+        self.cwd = str(Path(__file__).parents[2])
 
         if not storage_path.startswith("/") and not storage_path.endswith("/"):
             raise RuntimeError(
@@ -23,7 +23,17 @@ class JsonStore:
 
     async def check_message_is_reaction_message(self, message_id: Union[str, int]):
         data = await self.get_config()
-        return str(message_id) in data.values()
+        if data["ticket_setup_message_id"] == message_id:
+            return True
+
+        data.pop("ticket_count")
+        data.pop("ticket_setup_message_id")
+
+        for v in data.values():
+            if message_id == v.get("reaction_message_id"):
+                return True
+
+        return False
 
     async def create_ticket(
         self,
@@ -36,6 +46,7 @@ class JsonStore:
             "id": ticket_id,
             "reaction_message_id": reaction_message_id,
         }
+        self.__write(data, "config")
 
     async def decrement_ticket_count(self):
         data = await self.get_config()
@@ -50,7 +61,7 @@ class JsonStore:
 
     async def get_next_ticket_id(self):
         await self.increment_ticket_count()
-        return self.get_ticket_count()
+        return await self.get_ticket_count()
 
     async def get_ticket_count(self):
         data = await self.get_config()
