@@ -1,8 +1,12 @@
+from typing import Iterable
+
 import discord
 
+from utils import ReactionContext, Message
 from utils.db import Base
 
 
+# noinspection DuplicatedCode
 class Ticket:
     """An added context attr designed with simplicity in mind.
 
@@ -18,10 +22,10 @@ class Ticket:
         self.ctx = ctx
         self.db = db
 
-    async def close_ticket(self, reason=None):
+    async def close_ticket(self, reason=None, *, reaction_event=False):
         ctx = self.ctx
         channel = self.ctx.channel
-        if not await self.db.check_is_ticket(channel.id):
+        if not await self.db.check_is_ticket(channel.id) and not reaction_event:
             return await ctx.send("I can only close channels that are actual tickets.")
 
         reason = reason or "No closing reason specified."
@@ -151,3 +155,54 @@ class Ticket:
 
         if file:
             await log_channel.send(file=file)
+
+    @classmethod
+    async def reaction_create_ticket(cls, bot, payload):
+        if not await cls.validate_reaction_event(bot, payload, ["🔒", "✅"]):
+            return
+
+        guild = bot.get_guild(payload.guild_id)
+        channel = bot.get_channel(payload.channel_id)
+        member = payload.member or guild.get_member(payload.user_id)
+        ctx = ReactionContext(
+            guild=guild, bot=bot, message=Message(author=member), channel=channel
+        )
+
+        await Ticket(ctx, bot.ticket_db).create_ticket()
+
+        # Once we create the ticket, remove there reaction
+        message = await channel.fetch_message(payload.message_id)
+        await message.remove_reaction("✅", member)
+
+    @classmethod
+    async def reaction_close_ticket(cls, bot, payload):
+        guild = bot.get_guild(payload.guild_id)
+        channel = bot.get_channel(payload.channel_id)
+        member = payload.member or guild.get_member(payload.user_id)
+        ctx = ReactionContext(
+            guild=guild, bot=bot, message=Message(author=member), channel=channel
+        )
+
+        await Ticket(ctx, bot.ticket_db).close_ticket(reaction_event=True)
+
+    @staticmethod
+    async def validate_reaction_event(bot, payload, emojis: Iterable[str]) -> bool:
+        if payload.user_id == bot.user.id:
+            return False
+
+        reaction = str(payload.emoji)
+        if reaction not in emojis:
+            return False
+
+        if (
+            not payload.channel_id == bot.new_ticket_channel_id
+            and not await bot.ticket_db.check_is_ticket(payload.channel_id)
+        ):
+            return False
+
+        if not await bot.ticket_db.check_message_is_reaction_message(
+            payload.message_id
+        ):
+            return False
+
+        return True

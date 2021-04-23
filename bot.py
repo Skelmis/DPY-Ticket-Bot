@@ -4,7 +4,7 @@ from pathlib import Path
 import discord
 from discord.ext import commands
 
-from utils import MyContext, JsonStore
+from utils import MyContext, JsonStore, Ticket
 
 
 class Bot(commands.Bot):
@@ -18,11 +18,15 @@ class Bot(commands.Bot):
 
         self.cwd = str(Path(__file__).parents[0])
 
-        self.new_ticket_channel_id = None
-        self.log_channel_id = None
+        # The category to make tickets in
         self.category_id = None
+        # The channel to send logs to
+        self.log_channel_id = None
+        # Where to setup the on_reaction -> create new ticket
+        self.new_ticket_channel_id = None
+        # The staff role to add to tickets
         self.staff_role_id = None
-
+        # The data storage medium to use (MUST implement utils.db.base.Base)
         self.ticket_db = JsonStore()
 
     async def get_context(self, message, *, cls=MyContext):
@@ -31,11 +35,40 @@ class Bot(commands.Bot):
     async def on_ready(self):
         print(f"{self.user.display_name} is up and ready to go!")
 
+    async def on_raw_reaction_add(self, payload):
+        if not await Ticket.validate_reaction_event(self, payload, ["🔒", "✅"]):
+            return
 
-@bot.command(name="close", description="Close this ticket.", usage="[reason]")
-@commands.guild_only()
-async def close(ctx, *, reason=None):
-    await CloseTicket(bot, ctx.channel, ctx.author, reason)
+        reaction = str(payload.emoji)
+        if (
+            payload.message_id == await self.ticket_db.get_ticket_setup_message_id()
+            and reaction == "✅"
+        ):
+            await Ticket.reaction_create_ticket(self, payload)
+
+        elif reaction == "🔒":
+            # Simply add a tick to the message
+            channel = self.get_channel(payload.channel_id)
+            message = await channel.fetch_message(payload.message_id)
+            await message.add_reaction("✅")
+
+        elif reaction == "✅":
+            # Time to delete the ticket!
+            await Ticket.reaction_close_ticket(self, payload)
+
+    async def on_raw_reaction_remove(self, payload):
+        if not await Ticket.validate_reaction_event(self, payload, ["🔒"]):
+            return
+
+        reaction = str(payload.emoji)
+        if reaction == "🔒":
+            # Simply remove a tick from the message
+            guild = bot.get_guild(payload.guild_id)
+            member = await guild.fetch_member(bot.user.id)
+
+            channel = bot.get_channel(payload.channel_id)
+            message = await channel.fetch_message(payload.message_id)
+            await message.remove_reaction("✅", member)
 
 
 if __name__ == "__main__":
