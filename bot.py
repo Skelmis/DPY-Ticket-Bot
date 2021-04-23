@@ -19,13 +19,13 @@ class Bot(commands.Bot):
         self.cwd = str(Path(__file__).parents[0])
 
         # The category to make tickets in
-        self.category_id = 835056105872818176
+        self.category_id = None
         # The channel to send logs to
-        self.log_channel_id = 835056152156176394
+        self.log_channel_id = None
         # Where to setup the on_reaction -> create new ticket
-        self.new_ticket_channel_id = 835056189795467274
+        self.new_ticket_channel_id = None
         # The staff role to add to tickets
-        self.staff_role_id = 503037272313036802
+        self.staff_role_id = None
         # The data storage medium to use (MUST implement utils.db.base.Base)
         self.ticket_db = JsonStore(storage_path="/bot_config/")
 
