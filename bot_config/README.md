@@ -1,0 +1,1 @@
+Add a file called `token.json` which contains your bot token under the key `token`
