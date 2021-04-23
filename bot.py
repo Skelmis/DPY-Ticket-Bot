@@ -136,7 +136,7 @@ if __name__ == "__main__":
         await ctx.ticket.close_ticket(reason=reason)
 
     # <-- Start the bot -->
-    with open(bot.cwd + "/bot_config/secrets.json", "r") as file:
+    with open(bot.cwd + "/bot_config/token.json", "r") as file:
         secret_file = json.load(file)
 
     bot.run(secret_file["token"])
