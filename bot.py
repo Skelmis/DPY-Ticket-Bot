@@ -4,7 +4,7 @@ from pathlib import Path
 import discord
 from discord.ext import commands
 
-from utils import MyContext, JsonStore, Ticket
+from utils import MyContext, Ticket, JsonStore
 
 
 class Bot(commands.Bot):

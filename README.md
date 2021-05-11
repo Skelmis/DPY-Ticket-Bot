@@ -11,3 +11,5 @@ This bot features, logging of ticket contents & support for reactions as well as
 - Run the `setup` command, and your good to go!
 
 Requires python 3.8 or higher
+
+If you use the SqlLite store you will need `pip install aiosqlite` (This is not the default but **HIGHLY** recommended)
