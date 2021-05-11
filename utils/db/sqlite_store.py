@@ -8,7 +8,7 @@ from .base import Base
 
 
 # noinspection SqlNoDataSourceInspection
-class SqlLiteStore(Base):
+class SqliteStore(Base):
     """
     Its on you to clear the database if you want
 
