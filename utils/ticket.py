@@ -1,3 +1,5 @@
+import os
+from pathlib import Path
 from typing import Iterable
 
 import discord
@@ -18,11 +20,12 @@ class Ticket:
     with events that don't have an attached context.
     """
 
-    __slots__ = ("ctx", "db")
+    __slots__ = ("ctx", "db", "path")
 
     def __init__(self, ctx, db: Base):
         self.ctx = ctx
         self.db = db
+        self.path = str(Path(__file__).parents[1])
 
     async def close_ticket(self, reason=None, *, reaction_event=False):
         ctx = self.ctx
@@ -39,7 +42,9 @@ class Ticket:
                 for message in messages
             ]
         )
-        with open(f"tickets/{ticket_id}.txt", "w", encoding="utf8") as f:
+        with open(
+            os.path.join(self.path, "tickets", f"{ticket_id}.txt"), "w", encoding="utf8"
+        ) as f:
             f.write(
                 f"Here is the message log for ticket ID {ticket_id}\n----------\n\n"
             )
