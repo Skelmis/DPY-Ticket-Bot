@@ -1,3 +1,4 @@
+import logging
 import os
 from pathlib import Path
 from typing import Union
@@ -5,6 +6,9 @@ from typing import Union
 import aiosqlite
 
 from .base import Base
+
+
+log = logging.getLogger(__name__)
 
 
 # noinspection SqlNoDataSourceInspection
@@ -38,6 +42,8 @@ class SqliteStore(Base):
         self.db = os.path.join(self.cwd, self.db_file)
 
         self.is_initialized = False
+
+        log.info("Initialised JsonStore")
 
     async def initialize(self):
         if self.is_initialized:

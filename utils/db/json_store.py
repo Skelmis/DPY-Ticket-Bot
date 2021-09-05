@@ -21,6 +21,8 @@ class JsonStore:
             )
         self.storage_path = storage_path
 
+        log.info("Initialised JsonStore")
+
     async def check_is_ticket(self, channel_id: Union[str, int]):
         return str(channel_id) in await self.get_config()
 
