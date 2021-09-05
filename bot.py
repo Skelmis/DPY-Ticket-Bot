@@ -68,9 +68,10 @@ class Bot(commands.Bot):
         return await super().get_context(message, cls=cls)
 
     async def on_ready(self):
-        print(f"{self.user.display_name} is up and ready to go!")
+        log.info(f"{self.user.display_name} is up and ready to go!")
 
     async def on_raw_reaction_add(self, payload):
+        log.debug("Parsing a raw reaction add")
         if not await Ticket.validate_reaction_event(self, payload, ["🔒", "✅"]):
             return
 
@@ -79,6 +80,7 @@ class Bot(commands.Bot):
                 payload.message_id == await self.ticket_db.get_ticket_setup_message_id()
                 and reaction == "✅"
         ):
+            log.info("Attempting to create a ticket via reaction.")
             await Ticket.reaction_create_ticket(self, payload)
 
         elif reaction == "🔒":
@@ -89,9 +91,11 @@ class Bot(commands.Bot):
 
         elif reaction == "✅":
             # Time to delete the ticket!
+            log.info("Attempting to close a ticket via reaction.")
             await Ticket.reaction_close_ticket(self, payload)
 
     async def on_raw_reaction_remove(self, payload):
+        log.debug("Parsing a raw reaction remove")
         if not await Ticket.validate_reaction_event(self, payload, ["🔒"]):
             return
 
@@ -113,6 +117,7 @@ if __name__ == "__main__":
     @bot.command(name="new", description="Create a new ticket.", usage="[subject]")
     @commands.guild_only()
     async def new(ctx, *, subject=None):
+        log.info("Trying to create a new ticket via command.")
         await ctx.ticket.create_ticket(subject=subject)
 
 
@@ -124,6 +129,7 @@ if __name__ == "__main__":
     @commands.guild_only()
     @commands.is_owner()
     async def sudonew(ctx, user: discord.Member):
+        log.info("Trying to create a new ticket on behalf via command.")
         await ctx.ticket.create_ticket(subject="Sudo Ticket Creation", sudo_author=user)
 
 
@@ -131,6 +137,7 @@ if __name__ == "__main__":
     @commands.guild_only()
     @commands.is_owner()
     async def setup(ctx):
+        log.info("Setting up the ticket bot.")
         await ctx.ticket.setup_new_ticket_message()
 
 
@@ -142,6 +149,7 @@ if __name__ == "__main__":
     @commands.guild_only()
     @commands.is_owner()
     async def echo(ctx, channel: discord.TextChannel, *, content):
+        log.info(f"Echoing '{content}' as the bot")
         await ctx.message.delete()
         embed = discord.Embed(
             description=content, color=0x808080, timestamp=ctx.message.created_at
@@ -160,6 +168,7 @@ if __name__ == "__main__":
     @commands.guild_only()
     @commands.has_role(bot.staff_role_id)
     async def removeuser(ctx, user: discord.Member):
+        log.info(f"Attempting to remove {user.display_name} from a ticket.")
         await ctx.ticket.remove_user(user)
 
 
@@ -169,12 +178,14 @@ if __name__ == "__main__":
     @commands.guild_only()
     @commands.has_role(bot.staff_role_id)
     async def adduser(ctx, user: discord.Member):
+        log.info(f"Attempted to add {user.display_name} to a ticket")
         await ctx.ticket.add_user(user)
 
 
     @bot.command(name="close", description="Close this ticket.", usage="[reason]")
     @commands.guild_only()
     async def close(ctx, *, reason=None):
+        log.info("Attempting to close a ticket via command.")
         await ctx.ticket.close_ticket(reason=reason)
 
 
