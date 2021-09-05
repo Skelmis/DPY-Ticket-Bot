@@ -3,6 +3,8 @@ import logging
 from pathlib import Path
 from typing import Union
 
+log = logging.getLogger(__name__)
+
 
 # noinspection DuplicatedCode
 class JsonStore:
@@ -37,7 +39,7 @@ class JsonStore:
 
             return False
         except KeyError:
-            logging.warning("You should run the `setup` command in discord before making tickets.")
+            log.warning("You should run the `setup` command in discord before making tickets.")
             return False
 
     async def create_ticket(
