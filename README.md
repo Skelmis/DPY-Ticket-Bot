@@ -14,3 +14,15 @@ This bot features, logging of ticket contents & support for reactions as well as
 - Run the `setup` command, and your good to go!
 
 Requires python 3.8 or higher
+
+
+## Version
+
+**4**
+
+Changes from last version:
+ - Sqlite is now the default storage
+   - If you previously used Json. You will need to migrate your data or
+     simply change the bot to continue using Json. See `bot.py` for this.
+ - If you attempt to close tickets when using Json and you haven't run
+   the setup command yet the bot will 'warn' before continuing.
