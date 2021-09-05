@@ -1,10 +1,26 @@
 import json
+import logging
 from pathlib import Path
 
 import discord
 from discord.ext import commands
 
 from utils import MyContext, Ticket, JsonStore, SqliteStore
+
+"""
+Options for logging:
+logging.NOTSET - No logging
+logging.DEBUG - All info
+logging.INFO - Slightly less
+logging.WARN - Only warnings and worse
+logging.ERROR - Only errors and worse
+"""
+logging.basicConfig(
+    format="%(levelname)s | %(asctime)s | %(module)s | %(message)s",
+    datefmt="%d/%m/%Y %I:%M:%S %p",
+    level=logging.INFO,
+)
+log = logging.getLogger(__name__)
 
 
 class Bot(commands.Bot):
@@ -35,6 +51,18 @@ class Bot(commands.Bot):
                 or not self.new_ticket_channel_id \
                 or not self.staff_role_id:
             raise RuntimeError("Please set all of these variables above")
+
+        if not isinstance(self.category_id, int):
+            raise RuntimeError("Expected category_id to be an int")
+
+        if not isinstance(self.log_channel_id, int):
+            raise RuntimeError("Expected log_channel_id to be an int")
+
+        if not isinstance(self.new_ticket_channel_id, int):
+            raise RuntimeError("Expected new_ticket_channel_id to be an int")
+
+        if not isinstance(self.staff_role_id, int):
+            raise RuntimeError("Expected staff_role_id to be an int")
 
     async def get_context(self, message, *, cls=MyContext):
         return await super().get_context(message, cls=cls)

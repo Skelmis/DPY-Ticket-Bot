@@ -26,3 +26,4 @@ Changes from last version:
      simply change the bot to continue using Json. See `bot.py` for this.
  - If you attempt to close tickets when using Json and you haven't run
    the setup command yet the bot will 'warn' before continuing.
+ - Adding logging by default
