@@ -4,7 +4,7 @@ from pathlib import Path
 import discord
 from discord.ext import commands
 
-from utils import MyContext, Ticket, JsonStore
+from utils import MyContext, Ticket, JsonStore, SqliteStore
 
 
 class Bot(commands.Bot):
@@ -27,7 +27,14 @@ class Bot(commands.Bot):
         # The staff role to add to tickets
         self.staff_role_id = None
         # The data storage medium to use (MUST implement utils.db.base.Base)
-        self.ticket_db = JsonStore(storage_path="/bot_config/")
+        # self.ticket_db = JsonStore(storage_path="/bot_config/")
+        self.ticket_db = SqliteStore(storage_path="/bot_config/")
+
+        if not self.category_id \
+                or not self.log_channel_id \
+                or not self.new_ticket_channel_id \
+                or not self.staff_role_id:
+            raise RuntimeError("Please set all of these variables above")
 
     async def get_context(self, message, *, cls=MyContext):
         return await super().get_context(message, cls=cls)
@@ -41,8 +48,8 @@ class Bot(commands.Bot):
 
         reaction = str(payload.emoji)
         if (
-            payload.message_id == await self.ticket_db.get_ticket_setup_message_id()
-            and reaction == "✅"
+                payload.message_id == await self.ticket_db.get_ticket_setup_message_id()
+                and reaction == "✅"
         ):
             await Ticket.reaction_create_ticket(self, payload)
 
@@ -74,10 +81,12 @@ class Bot(commands.Bot):
 if __name__ == "__main__":
     bot = Bot()
 
+
     @bot.command(name="new", description="Create a new ticket.", usage="[subject]")
     @commands.guild_only()
     async def new(ctx, *, subject=None):
         await ctx.ticket.create_ticket(subject=subject)
+
 
     @bot.command(
         name="sudonew",
@@ -89,11 +98,13 @@ if __name__ == "__main__":
     async def sudonew(ctx, user: discord.Member):
         await ctx.ticket.create_ticket(subject="Sudo Ticket Creation", sudo_author=user)
 
+
     @bot.command(name="setup", description="Initial setup of the bot.")
     @commands.guild_only()
     @commands.is_owner()
     async def setup(ctx):
         await ctx.ticket.setup_new_ticket_message()
+
 
     @bot.command(
         name="echo",
@@ -112,6 +123,7 @@ if __name__ == "__main__":
         )
         await channel.send(embed=embed)
 
+
     @bot.command(
         name="removeuser",
         description="Removes a user from this ticket.",
@@ -122,6 +134,7 @@ if __name__ == "__main__":
     async def removeuser(ctx, user: discord.Member):
         await ctx.ticket.remove_user(user)
 
+
     @bot.command(
         name="adduser", description="Add a user to this ticket", usage="<user>"
     )
@@ -130,10 +143,12 @@ if __name__ == "__main__":
     async def adduser(ctx, user: discord.Member):
         await ctx.ticket.add_user(user)
 
+
     @bot.command(name="close", description="Close this ticket.", usage="[reason]")
     @commands.guild_only()
     async def close(ctx, *, reason=None):
         await ctx.ticket.close_ticket(reason=reason)
+
 
     # <-- Start the bot -->
     with open(bot.cwd + "/bot_config/token.json", "r") as file:
