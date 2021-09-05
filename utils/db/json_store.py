@@ -1,4 +1,5 @@
 import json
+import logging
 from pathlib import Path
 from typing import Union
 
@@ -23,17 +24,21 @@ class JsonStore:
 
     async def check_message_is_reaction_message(self, message_id: Union[str, int]):
         data = await self.get_config()
-        if data["ticket_setup_message_id"] == message_id:
-            return True
-
-        data.pop("ticket_count")
-        data.pop("ticket_setup_message_id")
-
-        for v in data.values():
-            if message_id == v.get("reaction_message_id"):
+        try:
+            if data["ticket_setup_message_id"] == message_id:
                 return True
 
-        return False
+            data.pop("ticket_count")
+            data.pop("ticket_setup_message_id")
+
+            for v in data.values():
+                if message_id == v.get("reaction_message_id"):
+                    return True
+
+            return False
+        except KeyError:
+            logging.warning("You should run the `setup` command in discord before making tickets.")
+            return False
 
     async def create_ticket(
         self,
