@@ -76,10 +76,14 @@ class Ticket:
             author: discord.PermissionOverwrite(read_messages=True),
         }
 
+        category = bot.get_channel(bot.category_id)
+        if not category:
+            await bot.fetch_channel(bot.category_id)
+
         channel = await guild.create_text_channel(
             name=f"Support Ticket #{new_ticket_id}",
             overwrites=overwrites,
-            category=bot.get_channel(bot.category_id),
+            category=category,
         )
 
         content = f"""
